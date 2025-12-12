@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,13 +23,14 @@
             background-position: center;
             background-repeat: no-repeat;
             font-family: Arial, sans-serif;
-            overflow: hidden; /* Prevent scrolling */
+            overflow-x: hidden; /* Prevent horizontal scroll only */
+            overflow-y: auto;   /* Allow vertical scroll if needed */
             position: relative;
         }
 
         /* --- Snow Animation Layer --- */
         .snow-container {
-            position: absolute;
+            position: fixed; /* Fixed so it stays put while scrolling */
             top: 0;
             left: 0;
             width: 100%;
@@ -69,7 +71,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center; /* Centers everything vertically */
-            height: 100vh; /* Takes full viewport height */
+            min-height: 100vh; /* Use min-height to allow scrolling on small screens */
             padding: 20px;
             text-align: center;
         }
@@ -79,11 +81,11 @@
             font-family: "Astloch", serif;
             font-weight: 700;
             margin: 0 0 10px 0;
-            font-size: 4rem; /* Slightly smaller to fit better */
+            /* Use clamp to make it dynamic: min 2.5rem, pref 5vw, max 3.5rem */
+            font-size: clamp(2.5rem, 5vw, 3.5rem); 
             color: white;
             text-shadow: 0 0 10px #00BFFF, 0 0 20px #00BFFF;
             line-height: 1;
-            flex-shrink: 0; /* Prevents title from shrinking */
         }
 
         h3 {
@@ -91,7 +93,8 @@
             font-weight: 700;
             color: white;
             margin: 0 0 15px 0;
-            font-size: 1.8rem;
+            /* Dynamic sizing: min 1.2rem, pref 3vw, max 1.5rem */
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
             text-shadow: 
                 0 0 8px #ff99cc,
                 0 0 12px #ff99cc,
@@ -99,15 +102,15 @@
                 0 0 8px #99ccff,
                 0 0 12px #99ccff,
                 0 0 18px #99ccff;
-            flex-shrink: 0;
         }
 
         /* --- Interactive Elements --- */
         button.generate-btn {
             font-family: "Mountains of Christmas", serif;
-            font-size: 1.8rem;
+            /* Dynamic sizing: min 1.2rem, pref 3vw, max 1.5rem */
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
             font-weight: bold;
-            padding: 10px 30px;
+            padding: 8px 25px; /* Slightly reduced padding */
             background-color: #ffb7b2;
             border: 2px solid white;
             border-radius: 50px;
@@ -116,7 +119,6 @@
             transition: all 0.3s ease;
             color: #5c2b2b;
             margin-bottom: 20px;
-            flex-shrink: 0;
         }
 
         button.generate-btn:hover {
@@ -132,13 +134,12 @@
         /* --- Output Box --- */
         .output-box {
             position: relative;
-            padding: 2rem;
+            padding: 1.5rem; /* Reduced padding */
             width: 90%;
-            max-width: 700px;
+            max-width: 550px; /* Reduced max-width from 700px */
             
             /* Ensures it doesn't touch the bottom or stretch too far */
-            max-height: 40vh; 
-            min-height: 200px;
+            min-height: 180px; /* Slightly smaller min-height */
             margin-bottom: 20px;
 
             /* Flex to center text INSIDE the box */
@@ -148,20 +149,21 @@
             align-items: center;
             
             /* Background settings */
-            background-color: rgba(173, 216, 230, 0.85); /* Slightly more opaque */
+            background-color: rgba(173, 216, 230, 0.85);
             background-image: url('https://i.pinimg.com/originals/02/42/9a/02429ad821287ebbe8f1ab4edf7ce293.gif');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
             
             border-radius: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.6); /* Slightly thinner border */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .elf-name-text {
             font-family: "Mountains of Christmas", serif;
-            font-size: 3rem;
+            /* Dynamic sizing: min 1.8rem, pref 4vw, max 2.5rem */
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: bold;
             color: #4b0082;
             text-shadow: 0 0 8px #ffffff, 0 0 12px #ffccff, 0 0 18px #ff99cc;
@@ -171,19 +173,20 @@
 
         .elf-job-text {
             font-family: "Mountains of Christmas", serif;
-            font-size: 2rem;
+            /* Dynamic sizing: min 1.2rem, pref 3vw, max 1.6rem */
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
             font-weight: normal;
-            color: #2e0052; /* Slightly darker/different for contrast */
+            color: #2e0052;
             text-shadow: 0 0 5px #ffffff;
-            margin-top: 10px;
+            margin-top: 8px;
             font-style: italic;
         }
 
         /* --- Copy Button (Small) --- */
         .copy-btn {
             margin-top: 15px;
-            font-size: 0.9rem;
-            padding: 5px 15px;
+            font-size: 0.8rem;
+            padding: 4px 12px;
             background: rgba(255, 255, 255, 0.8);
             border: none;
             border-radius: 15px;
@@ -193,21 +196,16 @@
             font-family: sans-serif;
             color: #4b0082;
             position: absolute;
-            bottom: 10px;
+            bottom: 8px;
         }
 
         .output-box:hover .copy-btn {
             opacity: 1;
         }
 
-        /* Mobile adjustments */
+        /* Mobile adjustments - kept for extra safety, though clamp handles most of it */
         @media (max-width: 600px) {
-            h1 { font-size: 3rem; margin-bottom: 5px; }
-            h3 { font-size: 1.4rem; margin-bottom: 10px; }
-            button.generate-btn { font-size: 1.4rem; padding: 8px 20px; }
-            .elf-name-text { font-size: 2rem; }
-            .elf-job-text { font-size: 1.4rem; }
-            .output-box { padding: 1.5rem; min-height: 180px; }
+            .output-box { padding: 1.2rem; min-height: 160px; }
         }
     </style>
 </head>
@@ -362,7 +360,14 @@
             }
         }
 
-        window.onload = createSnowflakes;
+        window.onload = function() {
+            createSnowflakes();
+            // Scroll to the main content to hide any header text/padding added by hosting
+            const container = document.getElementById('content-container');
+            if (container) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
 
     </script>
 </body>
