@@ -291,7 +291,9 @@
             "Star Duster", "Bell Ringer", "Caroling Director", "Cookie Quality Control", "Toy Tester", 
             "Gumdrop Sorter", "Map Reader", "Sleigh GPS Navigator", "Stable Hand", "Carrot Peeler", 
             "Coal Miner (for the naughty kids)", "Snow Angel Artist", "Fudge Stirrer", "Yule Log Burner", 
-            "Party Planner", "Elf Shoe Cobbler", "Hat Pom-Pom Fluffer"
+            "Party Planner", "Elf Shoe Cobbler", "Hat Pom-Pom Fluffer", "Creative Director, Frost Division",
+            "Jingle-drone Traffic Controller", "Sr. Gift Ranker", "Snow-fort Architect", "Snow-fort Inspector",
+            "Jinglebell Sorter", "Hibernation Coordinator",
         ];
 
         function getRandomItem(array) {
