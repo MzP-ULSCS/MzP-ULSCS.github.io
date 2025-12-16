@@ -134,18 +134,19 @@
         /* --- Output Box --- */
         .output-box {
             position: relative;
-            padding: 1.5rem; /* Reduced padding */
+            padding: 1rem;
             width: 90%;
-            max-width: 550px; /* Reduced max-width from 700px */
+            max-width: 550px; 
             
             /* Ensures it doesn't touch the bottom or stretch too far */
-            min-height: 180px; /* Slightly smaller min-height */
+            max-height: 55vh; /* Limit height to 55% of viewport */
+            overflow-y: auto; /* Enable vertical scrolling for the names list */
+            min-height: 180px;
             margin-bottom: 20px;
 
             /* Flex to center text INSIDE the box */
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             
             /* Background settings */
@@ -156,14 +157,45 @@
             background-position: center;
             
             border-radius: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.6); /* Slightly thinner border */
+            border: 3px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            
+            /* Scrollbar styling for Webkit browsers */
+            scrollbar-width: thin;
+            scrollbar-color: #ffb7b2 rgba(255, 255, 255, 0.5);
+        }
+
+        /* Custom scrollbar for Chrome/Safari */
+        .output-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .output-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+        .output-box::-webkit-scrollbar-thumb {
+            background-color: #ffb7b2;
+            border-radius: 10px;
+        }
+
+        .results-list {
+            width: 100%;
+            margin-bottom: 30px; /* Space for copy button */
+        }
+
+        .elf-entry {
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+            padding: 10px 0;
+        }
+        
+        .elf-entry:last-child {
+            border-bottom: none;
         }
 
         .elf-name-text {
             font-family: "Mountains of Christmas", serif;
-            /* Dynamic sizing: min 1.8rem, pref 4vw, max 2.5rem */
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            /* Dynamic sizing: min 1.5rem, pref 4vw, max 2.2rem */
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
             font-weight: bold;
             color: #4b0082;
             text-shadow: 0 0 8px #ffffff, 0 0 12px #ffccff, 0 0 18px #ff99cc;
@@ -173,39 +205,40 @@
 
         .elf-job-text {
             font-family: "Mountains of Christmas", serif;
-            /* Dynamic sizing: min 1.2rem, pref 3vw, max 1.6rem */
-            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            /* Dynamic sizing: min 1.1rem, pref 3vw, max 1.4rem */
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
             font-weight: normal;
             color: #2e0052;
             text-shadow: 0 0 5px #ffffff;
-            margin-top: 8px;
+            margin-top: 5px;
             font-style: italic;
         }
 
-        /* --- Copy Button (Small) --- */
+        /* --- Copy Button (Sticky) --- */
         .copy-btn {
-            margin-top: 15px;
+            margin-top: 10px;
             font-size: 0.8rem;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
+            padding: 6px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ffb7b2;
             border-radius: 15px;
-            opacity: 0;
-            transition: opacity 0.3s;
             cursor: pointer;
             font-family: sans-serif;
             color: #4b0082;
-            position: absolute;
-            bottom: 8px;
+            position: sticky; /* Keeps it visible at bottom of scroll box */
+            bottom: 5px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
         }
 
-        .output-box:hover .copy-btn {
-            opacity: 1;
+        .copy-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
         }
 
         /* Mobile adjustments - kept for extra safety, though clamp handles most of it */
         @media (max-width: 600px) {
-            .output-box { padding: 1.2rem; min-height: 160px; }
+            .output-box { padding: 1rem; min-height: 160px; }
         }
     </style>
 </head>
@@ -219,12 +252,16 @@
         
         <button class="generate-btn" onclick="generateName()">Name Me</button>
         
-        <h3>Your Magical Winter Elf Name Is...</h3>
+        <h3>Your Magical Winter Elf Names Are...</h3>
         
         <div class="output-box">
-            <div id="result-name" class="elf-name-text">Click the button!</div>
-            <div id="result-job" class="elf-job-text"></div>
-            <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Name</button>
+            <div id="results-container" class="results-list">
+                <div class="elf-entry">
+                    <div class="elf-name-text">Click the button!</div>
+                </div>
+            </div>
+            
+            <button class="copy-btn" onclick="copyToClipboard()">📋 Copy All</button>
         </div>
     </div>
 
@@ -298,19 +335,41 @@
             return array[Math.floor(Math.random() * array.length)];
         }
 
+        // Store current names for copying
+        let currentGeneratedNames = [];
+
         function generateName() {
-            const first = getRandomItem(firstNames);
-            const prefix = getRandomItem(sirPrefixes);
-            const suffix = getRandomItem(sirSuffixes);
-            const job = getRandomItem(jobs);
-            
-            const fullName = `${first} ${prefix}${suffix}`;
-            
-            const nameElement = document.getElementById('result-name');
-            const jobElement = document.getElementById('result-job');
-            
-            nameElement.innerText = fullName;
-            jobElement.innerText = job;
+            const container = document.getElementById('results-container');
+            container.innerHTML = ''; // Clear previous results
+            currentGeneratedNames = []; // Reset copy buffer
+
+            for (let i = 0; i < 5; i++) {
+                const first = getRandomItem(firstNames);
+                const prefix = getRandomItem(sirPrefixes);
+                const suffix = getRandomItem(sirSuffixes);
+                const job = getRandomItem(jobs);
+                
+                const fullName = `${first} ${prefix}${suffix}`;
+                
+                // Add to copy buffer
+                currentGeneratedNames.push(`${fullName}, ${job}`);
+
+                // Create HTML elements
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'elf-entry';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'elf-name-text';
+                nameDiv.innerText = fullName;
+                
+                const jobDiv = document.createElement('div');
+                jobDiv.className = 'elf-job-text';
+                jobDiv.innerText = job;
+                
+                entryDiv.appendChild(nameDiv);
+                entryDiv.appendChild(jobDiv);
+                container.appendChild(entryDiv);
+            }
 
             // Add pop animation
             const outputBox = document.querySelector('.output-box');
@@ -318,20 +377,20 @@
             setTimeout(() => {
                 outputBox.style.transform = "scale(1)";
             }, 200);
+            
+            // Scroll to top of box so they see the first name
+            outputBox.scrollTop = 0;
         }
 
         function copyToClipboard() {
-            const name = document.getElementById('result-name').innerText;
-            const job = document.getElementById('result-job').innerText;
+            if (currentGeneratedNames.length === 0) return;
             
-            if (name === "Click the button!") return; 
-            
-            const fullText = `${name}, ${job}`;
+            const fullText = currentGeneratedNames.join('\n');
             
             navigator.clipboard.writeText(fullText).then(() => {
                 const btn = document.querySelector('.copy-btn');
                 const originalText = btn.innerText;
-                btn.innerText = "✨ Copied! ✨";
+                btn.innerText = "✨ Copied All! ✨";
                 setTimeout(() => {
                     btn.innerText = originalText;
                 }, 2000);
